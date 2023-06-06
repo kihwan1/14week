@@ -1,0 +1,72 @@
+#include <iostream>
+#include <vector>
+#include <Windows.h>
+#include <fstream>
+using namespace std;
+void main() {
+	/*int elapsedseconds = 0, x, T = 3;
+	cout << " RANDMAX " << RAND_MAX << endl;
+	while (elapsedseconds < 18) {
+		Sleep(T * 1000);
+		x = rand() % 100;
+		elapsedseconds += T;
+		cout << " Elapsed time [sec] = " << elapsedseconds << "  " << x << endl;
+	}*/
+	/*int NI = 7, NO = 15, ni, no;
+	vector <int> queue;
+	ni = rand() % NI;
+	for (int i = 0; i < ni; i++) {
+		queue.push_back(rand() % 20);
+		cout << queue.size() << " in " << queue[queue.size() - 1] << endl;
+	}
+	no = rand() % NO;
+	for (int i = 0; i < no; i++) {
+		int k = queue[0];
+		queue.erase(queue.begin());
+		cout << queue.size() << " out " << k << endl;
+	}*/
+	vector <int> queue;
+	int capacity = 100; // capacity 	
+	int NI = 20, NO = 30, time = 120, lost = 0, stime=0;
+	int NofPacket[120];
+	ofstream xx("graph.txt");
+	for (int i = 0; i < time; i++) {
+		int ni = rand() % NI;
+		int no = rand() % NO;
+		if (capacity < queue.size()+ni) { //넘치면 lost 계산
+			lost += ni+ queue.size() - capacity;
+			ni = capacity - queue.size();
+		}
+		for (int j = 0; j < ni; j++) { //패킷 넣기
+			queue.push_back(rand() % 20);
+		}
+		for (int m = 0; m < no; m++) { //패킷 빼기
+			if (queue.size() == 0) { //부족하면 break
+				break;
+			}
+			queue.erase(queue.begin());
+		}
+		NofPacket[i] = queue.size();
+		stime++;
+		cout << "패킷개수" << NofPacket[i] << endl;
+		cout << "손실개수" << lost << endl;
+		xx << stime << " " << NofPacket[i] << endl;
+		Sleep(1000);
+	}
+	int jj=0;
+	for (int i = 0; i < time; i++) {
+		jj += NofPacket[i];
+	}
+	for (int i = 0; i < time; i++) {
+		for (int j = 0; j < time; j++) {
+			if (NofPacket[i] > NofPacket[j]) {
+				int f = NofPacket[i];
+				NofPacket[i] = NofPacket[j];
+				NofPacket[j] = f;
+			}
+		}
+	}
+	cout << "평균" << jj / time << endl;
+	cout << "최대치" << NofPacket[0] << endl;
+
+}
