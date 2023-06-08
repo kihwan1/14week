@@ -2,7 +2,66 @@
 #include <vector>
 #include <Windows.h>
 #include <fstream>
+#include <string>
 using namespace std;
+class fifo {
+public:
+	fifo() : capacity(100), NI(20), NO(20) {};
+	fifo(int a, int b, int c, string d) : capacity(a), NI(b), NO(c), name(d)  {};
+	vector <int> kk;
+	int capacity, NI, NO, time=120, lost=0, stime=0, NofPacket[120], price=0;
+	string name;
+	void play() {
+		for (int i = 0; i < time; i++) {
+			int ni = rand() % NI;
+			int no = rand() % NO;
+			if (capacity < kk.size() + ni) { //넘치면 lost 계산
+				lost += ni + kk.size() - capacity;
+				ni = capacity - kk.size();
+			}
+			for (int j = 0; j < ni; j++) { //패킷 넣기
+				int a = rand() % 20;
+				kk.push_back(a);
+				price += 3000 * a;
+			}
+			for (int m = 0; m < no; m++) { //패킷 빼기
+				if (kk.size() == 0) { //부족하면 break
+					break;
+				}
+				kk.erase(kk.begin());
+			}
+			NofPacket[i] = kk.size();
+			stime++;
+			cout << endl;
+			cout << "현재 서버 이용자수 " << NofPacket[i] << "명" << endl;
+			cout << "서버 유지 비용 " << 10000 * capacity << "원" << endl;
+			cout << "손실금액 " << lost*3000<< "원" << endl;
+			cout << "수익 " << price << "원" << endl;
+			ofstream xx(name+".txt");
+			xx << stime << " " << NofPacket[i] << endl;
+			Sleep(1000);
+		}
+		int jj = 0;
+		for (int i = 0; i < time; i++) {
+			jj += NofPacket[i];
+		}
+		for (int i = 0; i < time; i++) {
+			for (int j = 0; j < time; j++) {
+				if (NofPacket[i] > NofPacket[j]) {
+					int f = NofPacket[i];
+					NofPacket[i] = NofPacket[j];
+					NofPacket[j] = f;
+				}
+			}
+		}
+		cout << endl << endl << endl;
+		cout << "수익 " << price << "원" << endl;
+		cout << "순이익" << price - 10000 * capacity << " 원" << endl;
+		cout << "평균 " << jj / time << endl;
+		cout << "최대치 " << NofPacket[0] << endl;
+	}
+
+};
 void main() {
 	/*int elapsedseconds = 0, x, T = 3;
 	cout << " RANDMAX " << RAND_MAX << endl;
@@ -25,48 +84,8 @@ void main() {
 		queue.erase(queue.begin());
 		cout << queue.size() << " out " << k << endl;
 	}*/
-	vector <int> queue;
-	int capacity = 100; // capacity 	
-	int NI = 20, NO = 30, time = 120, lost = 0, stime=0;
-	int NofPacket[120];
-	ofstream xx("graph.txt");
-	for (int i = 0; i < time; i++) {
-		int ni = rand() % NI;
-		int no = rand() % NO;
-		if (capacity < queue.size()+ni) { //넘치면 lost 계산
-			lost += ni+ queue.size() - capacity;
-			ni = capacity - queue.size();
-		}
-		for (int j = 0; j < ni; j++) { //패킷 넣기
-			queue.push_back(rand() % 20);
-		}
-		for (int m = 0; m < no; m++) { //패킷 빼기
-			if (queue.size() == 0) { //부족하면 break
-				break;
-			}
-			queue.erase(queue.begin());
-		}
-		NofPacket[i] = queue.size();
-		stime++;
-		cout << "패킷개수" << NofPacket[i] << endl;
-		cout << "손실개수" << lost << endl;
-		xx << stime << " " << NofPacket[i] << endl;
-		Sleep(1000);
-	}
-	int jj=0;
-	for (int i = 0; i < time; i++) {
-		jj += NofPacket[i];
-	}
-	for (int i = 0; i < time; i++) {
-		for (int j = 0; j < time; j++) {
-			if (NofPacket[i] > NofPacket[j]) {
-				int f = NofPacket[i];
-				NofPacket[i] = NofPacket[j];
-				NofPacket[j] = f;
-			}
-		}
-	}
-	cout << "평균" << jj / time << endl;
-	cout << "최대치" << NofPacket[0] << endl;
-
+	fifo a(180, 20, 10, (string)"서버 1");
+	fifo b(150, 20, 10, (string)"서버 2");
+	a.play();
+	b.play();
 }
